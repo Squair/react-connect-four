@@ -25,7 +25,7 @@ const App = () => {
     <div className="App" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
       {!findingGame && !foundGame && <PreLobby username={username} setUsername={setUsername} onStartClick={onStartClick} />}
       {findingGame && username && <Lobby username={username} cancelFindingGame={cancelFindingGame} />}
-      {foundGame && <ConnectFourGrid columns={7} rows={6} />}
+      {foundGame && <ConnectFourGrid columns={7} rows={6} winningContiguousCounters={4} />}
     </div>
   );
 }

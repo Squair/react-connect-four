@@ -6,10 +6,11 @@ interface IConnectFourGridItemProps {
     size: number;
     column: number;
     addCounter: (counter: Counter, column: number) => void;
+    currentPlayer: Counter;
 }
 
-const ConnectFourGridItem = ({ gridItem, size, column, addCounter }: IConnectFourGridItemProps) => {
-    const handleColumnClick = () => addCounter('🔴', column);
+const ConnectFourGridItem = ({ gridItem, size, column, addCounter, currentPlayer }: IConnectFourGridItemProps) => {
+    const handleColumnClick = () => addCounter(currentPlayer, column);
 
     return (
         <Grid item xs={size} sx={{ backgroundColor: 'blue', height: '', display: 'flex', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
