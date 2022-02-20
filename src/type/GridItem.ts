@@ -1,1 +1,1 @@
-export type GridItem = '🔴' | '🟡' | '⚪';
+export type Counter = '🔴' | '🟡' | '⚪';

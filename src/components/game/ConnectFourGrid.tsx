@@ -1,28 +1,25 @@
 import { Grid } from "@mui/material";
 import { useState } from "react";
-import { GridItem } from "../../type/GridItem";
+import { Counter } from "../../type/GridItem";
 import ConnectFourGridItem from "./ConnectFourGridItem";
 
 interface ConnectFourGridProps {
-    gridX: number;
-    gridY: number;
+    columns: number;
+    rows: number;
 }
 
-const ConnectFourGrid = ({ gridX, gridY }: ConnectFourGridProps) => {
-    const initaliseGrid = (xBounds: number, yBounds: number) => {
-        const emptyGrid: GridItem[][] = [];
+const ConnectFourGrid = ({ columns, rows }: ConnectFourGridProps) => {
+    const initaliseGrid = (cols: number, rows: number) => {
+        const emptyGrid: Counter[][] = [];
 
-        for (let x = 0; x < xBounds; x++) {
-            emptyGrid[x] = [];
-            for (let y = 0; y < yBounds; y++) {
-                emptyGrid[x][y] = '⚪';
-            }
+        for (let row = 0; row < rows; row++) {
+            emptyGrid[row] = new Array<Counter>(columns).fill('⚪');
         }
 
         return emptyGrid;
     }
 
-    const foo: GridItem[][] = [
+    const foo: Counter[][] = [
         ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🔴'],
         ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🔴'],
         ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🔴'],
@@ -31,12 +28,25 @@ const ConnectFourGrid = ({ gridX, gridY }: ConnectFourGridProps) => {
         ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🟡'],
     ]
 
-    //const [grid, setGrid] = useState<GridItem[][]>(initaliseGrid(gridX, gridY));
-    const [grid, setGrid] = useState<GridItem[][]>(foo);
+    const [grid, setGrid] = useState<Counter[][]>(initaliseGrid(columns, rows));
+    //const [grid, setGrid] = useState<Counter[][]>(foo);
+
+    const addCounter = (counter: Counter, column: number) => {        
+        const gridCopy = [...grid];
+        
+        //Start at the bottom of the grid and loop backwards as connect four pieces drop down to the bottom
+        for (let row = rows - 1; row >= 0; row--) {            
+            if (gridCopy[row][column] === '⚪') {
+                gridCopy[row][column] = counter;
+                break;
+            }
+        }
+        setGrid(gridCopy);
+    }
 
     return (
-        <Grid container columns={gridX} sx={{width: '75%', boxSizing: 'border-box'}}>
-            {grid.map(xAxis => xAxis.map(gridItem => <ConnectFourGridItem gridItem={gridItem} size={1} />))}
+        <Grid container columns={columns} sx={{ width: '75%', boxSizing: 'border-box' }}>
+            {grid.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => <ConnectFourGridItem key={`${rowIndex}${columnIndex}`} gridItem={columnGridItem} size={1} column={columnIndex} addCounter={addCounter} />))}
         </Grid>
     )
 }
