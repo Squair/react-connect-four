@@ -1,16 +1,21 @@
 import { Container, Grid, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Counter } from "../../type/GridItem";
+import { Socket } from "socket.io-client";
+import { IGame } from "../../interface/IGame";
+import { IMove } from "../../interface/IMove";
+import { Counter } from "../../type/Counter";
 import ConnectFourGridItem from "./ConnectFourGridItem";
 
 interface ConnectFourGridProps {
+    socket: Socket;
+    game: IGame;
     columns: number;
     rows: number;
     winningContiguousCounters: number;
 }
 
-const ConnectFourGrid = ({ columns, rows, winningContiguousCounters }: ConnectFourGridProps) => {
-    const initaliseGrid = (cols: number, rows: number) => {
+const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounters }: ConnectFourGridProps) => {
+    const initializeGrid = (cols: number, rows: number) => {
         const emptyGrid: Counter[][] = [];
 
         for (let row = 0; row < rows; row++) {
@@ -20,7 +25,7 @@ const ConnectFourGrid = ({ columns, rows, winningContiguousCounters }: ConnectFo
         return emptyGrid;
     }
 
-    const [grid, setGrid] = useState<Counter[][]>(initaliseGrid(columns, rows));
+    const [grid, setGrid] = useState<Counter[][]>(initializeGrid(columns, rows));
     const [counterWon, setCounterWon] = useState<Counter>();
     const [currentPlayer, setCurrentPlayer] = useState<Counter>('🔴');
 
@@ -41,7 +46,11 @@ const ConnectFourGrid = ({ columns, rows, winningContiguousCounters }: ConnectFo
                 break;
             }
         }
+
         setGrid(gridCopy);
+
+        const move: IMove = { gameId: game.id, counter, column };
+        socket.emit("add counter", move);
     }
 
     const hasCounterWon = (gameboardToCheck: Counter[][], counter: Counter, rowLastPlayed: number, columnLastPlayed: number): boolean => {
@@ -92,12 +101,14 @@ const ConnectFourGrid = ({ columns, rows, winningContiguousCounters }: ConnectFo
     }
 
     return (
-        <Container maxWidth='xl' sx={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+        <Container maxWidth='xl' sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             {counterWon && <Typography>{counterWon} has won!</Typography>}
 
             <Grid container columns={columns} sx={{ width: '75%', boxSizing: 'border-box' }}>
                 {grid.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => <ConnectFourGridItem key={`${rowIndex}${columnIndex}`} gridItem={columnGridItem} size={1} column={columnIndex} addCounter={addCounter} currentPlayer={currentPlayer} />))}
             </Grid>
+
+            { }
         </Container>
     )
 }

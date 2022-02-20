@@ -1,5 +1,5 @@
 import { Button, Grid, Typography } from "@mui/material";
-import { Counter } from "../../type/GridItem";
+import { Counter } from "../../type/Counter";
 
 interface IConnectFourGridItemProps {
     gridItem: Counter;
