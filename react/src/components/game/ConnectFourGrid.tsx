@@ -46,7 +46,8 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
 
         const counter = currentPlayer.counter;
 
-        addCounter(counter, column);
+        // If counter couldn't be added, return early.
+        if (!addCounter(counter, column)) return;
 
         const opposingPlayerId = game.players.filter(x => x.id !== socket.id)[0].id;
         const move: IMove = { opposingPlayerId, counter, column };
@@ -54,11 +55,16 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
         setCurrentPlayer(game.players.filter(x => x.id === move.opposingPlayerId)[0]);
     }
 
-    const addCounter = (counter: Counter, column: number) => {
+    const addCounter = (counter: Counter, column: number): boolean => {
         const gridCopy = [...gameboard];
 
         //Start at the bottom of the grid and loop backwards as connect four pieces drop down to the bottom
         for (let row = rows - 1; row >= 0; row--) {
+            // If a column is full, prevent the move from happening.
+            if (row === 0 && gridCopy[row][column] !== '⚪') {
+                return false;
+            }
+
             if (gridCopy[row][column] === '⚪') {
                 gridCopy[row][column] = counter;
 
@@ -68,6 +74,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
         }
 
         setGameBoard(gridCopy);
+        return true;
     }
 
     const isWinningMove = (gameboardToCheck: Counter[][], counter: Counter, rowLastPlayed: number, columnLastPlayed: number): boolean => {
