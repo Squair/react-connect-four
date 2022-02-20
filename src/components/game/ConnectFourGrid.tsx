@@ -20,25 +20,11 @@ const ConnectFourGrid = ({ columns, rows, winningContiguousCounters }: ConnectFo
         return emptyGrid;
     }
 
-    const foo: Counter[][] = [
-        ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🔴'],
-        ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🔴'],
-        ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🔴'],
-        ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🔴'],
-        ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🔴'],
-        ['🔴', '🔴', '🔴', '🔴', '🔴', '🔴', '🟡'],
-    ]
-
     const [grid, setGrid] = useState<Counter[][]>(initaliseGrid(columns, rows));
     const [counterWon, setCounterWon] = useState<Counter>();
     const [currentPlayer, setCurrentPlayer] = useState<Counter>('🔴');
-    //const [grid, setGrid] = useState<Counter[][]>(foo);
 
-    useEffect(() => {
-        if (currentPlayer === '🔴') return setCurrentPlayer('🟡');
-
-        return setCurrentPlayer('🔴');
-    }, [grid])
+    useEffect(() => setCurrentPlayer(currentPlayer === '🔴' ? '🟡' : '🔴'), [grid]);
 
     const addCounter = (counter: Counter, column: number) => {
         if (counterWon) return;
