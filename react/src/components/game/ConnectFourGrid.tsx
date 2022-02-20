@@ -118,9 +118,12 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
         return false;
     }
 
+    const firstMoveMade = grid.some(x => x.some(i => i !== '⚪'));
+
     return (
         <Container maxWidth='xl' sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             {counterWon && <Typography>{counterWon} has won!</Typography>}
+            {!firstMoveMade && <Typography>{game.firstPlayerToMove.username} goes first!</Typography>}
 
             <Grid container columns={columns} sx={{ width: '75%', boxSizing: 'border-box' }}>
                 {grid.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => <ConnectFourGridItem key={`${rowIndex}${columnIndex}`} gridItem={columnGridItem} size={1} column={columnIndex} makeMove={makeMove} />))}
