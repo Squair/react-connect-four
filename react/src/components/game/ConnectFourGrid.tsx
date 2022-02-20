@@ -12,10 +12,10 @@ interface ConnectFourGridProps {
     game: IGame;
     columns: number;
     rows: number;
-    winningContiguousCounters: number;
+    contiguousCountersToWin: number;
 }
 
-const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounters }: ConnectFourGridProps) => {
+const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin }: ConnectFourGridProps) => {
     const initializeEmptyGameBoard = (cols: number, rows: number) => {
         const emptyGrid: Counter[][] = [];
 
@@ -33,56 +33,64 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
 
     useEffect(() => {
         socket.on("recieve move", (move: IMove) => {
-            addCounter(move.counter, move.column);
-            setCurrentPlayer(game.players.filter(x => x.id === move.opposingPlayerId)[0]);
+            const counterAdded = addCounterToColumn(move.counter, move.column);
+            setGameBoard(counterAdded.newGameboard);
+            switchToPlayer(move.opposingPlayerId);
         });
     }, [socket]);
 
-    const makeMove = (column: number) => {
-        if (winningPlayer) return;
+    const switchToPlayer = (playerId: string) => setCurrentPlayer(game.players.filter(x => x.id === playerId)[0]);
+    const getPlayerFromCounter = (counter: Counter) => game.players.filter(x => x.counter === counter)[0];
+    const getOpposingPlayerId = (): string => game.players.filter(x => x.id !== socket.id)[0].id;
 
-        // Only allow users to make moves when its their turn.
-        if (socket.id !== currentPlayer.id) return;
+    const canMakeMove = (): boolean => !winningPlayer && socket.id === currentPlayer.id
+
+    const makeMove = (column: number) => {
+        if (!canMakeMove()) return;
 
         const counter = currentPlayer.counter;
+        const counterAdded = addCounterToColumn(counter, column);
+        setGameBoard(counterAdded.newGameboard);
 
-        // If counter couldn't be added, return early.
-        if (!addCounter(counter, column)) return;
-
-        const opposingPlayerId = game.players.filter(x => x.id !== socket.id)[0].id;
-        const move: IMove = { opposingPlayerId, counter, column };
+        const opposingPlayerId = getOpposingPlayerId();
+        const move: IMove = { opposingPlayerId: opposingPlayerId, counter, column };
         socket.emit("send move", move);
-        setCurrentPlayer(game.players.filter(x => x.id === move.opposingPlayerId)[0]);
+
+        if (counterAdded.rowAdded && isWinningMove(counterAdded.newGameboard, counter, counterAdded.rowAdded, column)) {
+            return setWinningPlayer(getPlayerFromCounter(counter));
+        }
+
+        switchToPlayer(opposingPlayerId);
     }
 
-    const addCounter = (counter: Counter, column: number): boolean => {
-        const gridCopy = [...gameboard];
+    const addCounterToColumn = (counter: Counter, column: number): { rowAdded?: number, newGameboard: Counter[][] } => {
+        if (isColumnFull(gameboard, column)) return { rowAdded: undefined, newGameboard: gameboard };
+
+        const newGameboard = [...gameboard];
+
+        let rowAdded;
 
         //Start at the bottom of the grid and loop backwards as connect four pieces drop down to the bottom
         for (let row = rows - 1; row >= 0; row--) {
-            // If a column is full, prevent the move from happening.
-            if (row === 0 && gridCopy[row][column] !== '⚪') {
-                return false;
-            }
-
-            if (gridCopy[row][column] === '⚪') {
-                gridCopy[row][column] = counter;
-
-                if (isWinningMove(gridCopy, counter, row, column)) setWinningPlayer(game.players.filter(x => x.counter === counter)[0]);
+            if (newGameboard[row][column] === '⚪') {
+                newGameboard[row][column] = counter;
+                rowAdded = row;
                 break;
             }
         }
 
-        setGameBoard(gridCopy);
-        return true;
+        return { rowAdded, newGameboard };
     }
 
-    const isWinningMove = (gameboardToCheck: Counter[][], counter: Counter, rowLastPlayed: number, columnLastPlayed: number): boolean => {
-        const rowMinBound = Math.max(0, rowLastPlayed - winningContiguousCounters);
-        const rowMaxBound = Math.min(rows - 1, rowLastPlayed + winningContiguousCounters);
+    // Get if top row for column is not empty.
+    const isColumnFull = (gameboard: Counter[][], column: number) => gameboard[0][column] !== '⚪';
 
-        const colMinBound = Math.max(0, columnLastPlayed - winningContiguousCounters);
-        const colMaxBound = Math.min(columns - 1, columnLastPlayed + winningContiguousCounters);
+    const isWinningMove = (gameboardToCheck: Counter[][], counter: Counter, rowLastPlayed: number, columnLastPlayed: number): boolean => {
+        const rowMinBound = Math.max(0, rowLastPlayed - contiguousCountersToWin);
+        const rowMaxBound = Math.min(rows - 1, rowLastPlayed + contiguousCountersToWin);
+
+        const colMinBound = Math.max(0, columnLastPlayed - contiguousCountersToWin);
+        const colMaxBound = Math.min(columns - 1, columnLastPlayed + contiguousCountersToWin);
 
         let contiguousCounters = 0;
         let colCounter;
@@ -90,14 +98,14 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
         // Check horizonal lines
         for (let column = colMinBound; column <= colMaxBound; column++) {
             contiguousCounters = gameboardToCheck[rowLastPlayed][column] === counter ? contiguousCounters + 1 : 0;
-            if (contiguousCounters === winningContiguousCounters) return true;
+            if (contiguousCounters === contiguousCountersToWin) return true;
         }
 
         // Check vertical lines
         contiguousCounters = 0;
         for (let row = rowMinBound; row <= rowMaxBound; row++) {
             contiguousCounters = gameboardToCheck[row][columnLastPlayed] === counter ? contiguousCounters + 1 : 0;
-            if (contiguousCounters === winningContiguousCounters) return true;
+            if (contiguousCounters === contiguousCountersToWin) return true;
         }
 
         // Check line like: \
@@ -105,7 +113,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
         colCounter = colMinBound;
         for (let row = Math.max(0, rowLastPlayed - columnLastPlayed); row <= rowMaxBound; row++) {
             contiguousCounters = gameboardToCheck[row][colCounter] === counter ? contiguousCounters + 1 : 0;
-            if (contiguousCounters === winningContiguousCounters) return true;
+            if (contiguousCounters === contiguousCountersToWin) return true;
 
             colCounter++;
         }
@@ -116,7 +124,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
         for (let row = rowMaxBound; row >= rowMinBound; row--) {
             contiguousCounters = gameboardToCheck[row][colCounter] === counter ? contiguousCounters + 1 : 0;
 
-            if (contiguousCounters === winningContiguousCounters) return true;
+            if (contiguousCounters === contiguousCountersToWin) return true;
 
             colCounter++;
         }
@@ -124,14 +132,31 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
         return false;
     }
 
+    const getConnectForGridItems = () => {
+        return gameboard.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => (
+            <ConnectFourGridItem key={`${rowIndex}${columnIndex}`}
+                gridItem={columnGridItem}
+                size={1}
+                column={columnIndex}
+                makeMove={makeMove}
+            />
+        )));
+    }
+
+    const getGameInformationText = () => {
+        const message = winningPlayer ? `${winningPlayer.username}(${winningPlayer.counter}) has won!`
+            : `${currentPlayer.username}'s (${currentPlayer.counter}) turn!`;
+
+        return <Typography variant='overline'>{message}</Typography>
+    }
+
     return (
         <Container maxWidth='xl' sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            {winningPlayer && <Typography>{winningPlayer.username}({winningPlayer.counter}) has won!</Typography>}
-            {!winningPlayer && <Typography>{currentPlayer.username}'s ({currentPlayer.counter}) turn!</Typography>}
-
-            <Grid container columns={columns} sx={{ width: '95%', boxSizing: 'border-box' }}>
-                {gameboard.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => <ConnectFourGridItem key={`${rowIndex}${columnIndex}`} gridItem={columnGridItem} size={1} column={columnIndex} makeMove={makeMove} />))}
+            <Grid container columns={columns} sx={{ width: '95%' }}>
+                {getConnectForGridItems()}
             </Grid>
+
+            {getGameInformationText()}
         </Container>
     )
 }
