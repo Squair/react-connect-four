@@ -55,6 +55,9 @@ const beginGame = () => {
         player.socket.join(gameId);
         io.to(gameId).emit("found game", game);
     });
+
+    //Remove players from queue
+    matchQueue = matchQueue.filter(x => !players.map(p => p.socket.id).includes(x.socket.id));
 }
 
 io.on("connection", (socket) => {
