@@ -31,6 +31,18 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
 
     useEffect(() => setCurrentPlayer(currentPlayer === '🔴' ? '🟡' : '🔴'), [grid]);
 
+    useEffect(() => {
+        socket.on("recieve move", (move: IMove) => addCounter(move.counter, move.column));
+    }, [socket]);
+
+    const makeMove = (counter: Counter, column: number) => {
+        addCounter(counter, column);
+        
+        const opposingPlayerId = game.players.filter(x => x.id !== socket.id)[0].id;
+        const move: IMove = { opposingPlayerId, counter, column };
+        socket.emit("send move", move);
+    }
+
     const addCounter = (counter: Counter, column: number) => {
         if (counterWon) return;
 
@@ -48,9 +60,6 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
         }
 
         setGrid(gridCopy);
-
-        const move: IMove = { gameId: game.id, counter, column };
-        socket.emit("add counter", move);
     }
 
     const hasCounterWon = (gameboardToCheck: Counter[][], counter: Counter, rowLastPlayed: number, columnLastPlayed: number): boolean => {
@@ -105,10 +114,8 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
             {counterWon && <Typography>{counterWon} has won!</Typography>}
 
             <Grid container columns={columns} sx={{ width: '75%', boxSizing: 'border-box' }}>
-                {grid.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => <ConnectFourGridItem key={`${rowIndex}${columnIndex}`} gridItem={columnGridItem} size={1} column={columnIndex} addCounter={addCounter} currentPlayer={currentPlayer} />))}
+                {grid.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => <ConnectFourGridItem key={`${rowIndex}${columnIndex}`} gridItem={columnGridItem} size={1} column={columnIndex} makeMove={makeMove} currentPlayer={currentPlayer} />))}
             </Grid>
-
-            { }
         </Container>
     )
 }

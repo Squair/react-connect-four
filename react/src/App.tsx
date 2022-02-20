@@ -46,7 +46,7 @@ const App = () => {
       {findingGame && username && <Lobby username={username} cancelFindingGame={stopFindingGame} />}
       {foundGame && socket && foundGame && (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography textAlign='center' variant='h3'>{username} vs {foundGame.players.filter(x => x !== username)}</Typography>
+          <Typography textAlign='center' variant='h3'>{username} vs {foundGame.players.filter(x => x.username !== username)[0].username}</Typography>
           <ConnectFourGrid socket={socket} game={foundGame} columns={7} rows={6} winningContiguousCounters={4} />
         </div>
       )}

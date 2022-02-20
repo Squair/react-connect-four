@@ -5,12 +5,12 @@ interface IConnectFourGridItemProps {
     gridItem: Counter;
     size: number;
     column: number;
-    addCounter: (counter: Counter, column: number) => void;
+    makeMove: (counter: Counter, column: number) => void;
     currentPlayer: Counter;
 }
 
-const ConnectFourGridItem = ({ gridItem, size, column, addCounter, currentPlayer }: IConnectFourGridItemProps) => {
-    const handleColumnClick = () => addCounter(currentPlayer, column);
+const ConnectFourGridItem = ({ gridItem, size, column, makeMove, currentPlayer }: IConnectFourGridItemProps) => {
+    const handleColumnClick = () => makeMove(currentPlayer, column);
 
     return (
         <Grid item xs={size} sx={{ backgroundColor: 'blue', height: '', display: 'flex', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>

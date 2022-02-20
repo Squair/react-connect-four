@@ -1,7 +1,7 @@
 import { Counter } from "../type/Counter";
 
 export interface IMove {
-    gameId: string;
+    opposingPlayerId: string;
     counter: Counter;
     column: number;
 }

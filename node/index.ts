@@ -4,23 +4,28 @@ import { Counter } from "./src/type/Counter";
 
 const io = new Server(3001, { cors: { origin: 'http://localhost:3000' } });
 
-interface IPlayer {
+interface IServerPlayer {
     username: string;
     socket: Socket;
 }
 
+interface IClientPlayer {
+    username: string;
+    id: string;
+}
+
 interface IGame {
     id: string;
-    players: string[];
+    players: IClientPlayer[];
 }
 
 interface IMove {
-    gameId: string;
+    opposingPlayerId: string;
     counter: Counter;
     column: number;
 }
 
-let matchQueue: IPlayer[] = [];
+let matchQueue: IServerPlayer[] = [];
 
 const beginGame = () => {
     // Retrieve the players that joined the queue first (FIFO)
@@ -29,7 +34,7 @@ const beginGame = () => {
 
     const game: IGame = {
         id: gameId,
-        players: players.map(x => x.username)
+        players: players.map(p => ({id: p.socket.id, username: p.username}))
     }
 
     players.map(player => {
@@ -45,6 +50,8 @@ io.on("connection", (socket) => {
     if (matchQueue.length >= 2) {
         beginGame();
     }
+
+    socket.on("send move", (move: IMove) => io.to(move.opposingPlayerId).emit("recieve move", move));
 });
 
 io.on("disconnect", (socket) => matchQueue = matchQueue.filter(x => x !== socket.id));
