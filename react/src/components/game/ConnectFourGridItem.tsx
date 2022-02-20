@@ -12,9 +12,9 @@ const ConnectFourGridItem = ({ gridItem, size, column, makeMove }: IConnectFourG
     const handleColumnClick = () => makeMove(column);
 
     return (
-        <Grid item xs={size} sx={{ backgroundColor: 'blue', height: '', display: 'flex', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
+        <Grid item xs={size} sx={{ backgroundColor: 'blue', display: 'flex', justifyContent: 'center', alignItems: 'center', boxSizing: 'border-box' }}>
             <Button onClick={handleColumnClick}>
-                <Typography fontSize='6em'>{gridItem}</Typography>
+                <Typography fontSize='8vmin'>{gridItem}</Typography>
             </Button>
         </Grid>
     )

@@ -129,7 +129,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, winningContiguousCounter
             {winningPlayer && <Typography>{winningPlayer.username}({winningPlayer.counter}) has won!</Typography>}
             {!winningPlayer && <Typography>{currentPlayer.username}'s ({currentPlayer.counter}) turn!</Typography>}
 
-            <Grid container columns={columns} sx={{ width: '75%', boxSizing: 'border-box' }}>
+            <Grid container columns={columns} sx={{ width: '95%', boxSizing: 'border-box' }}>
                 {gameboard.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => <ConnectFourGridItem key={`${rowIndex}${columnIndex}`} gridItem={columnGridItem} size={1} column={columnIndex} makeMove={makeMove} />))}
             </Grid>
         </Container>
