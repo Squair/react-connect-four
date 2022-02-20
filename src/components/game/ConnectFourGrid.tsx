@@ -1,4 +1,4 @@
-import { Grid, Typography } from "@mui/material";
+import { Container, Grid, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Counter } from "../../type/GridItem";
 import ConnectFourGridItem from "./ConnectFourGridItem";
@@ -41,6 +41,8 @@ const ConnectFourGrid = ({ columns, rows, winningContiguousCounters }: ConnectFo
     }, [grid])
 
     const addCounter = (counter: Counter, column: number) => {
+        if (counterWon) return;
+
         const gridCopy = [...grid];
 
         //Start at the bottom of the grid and loop backwards as connect four pieces drop down to the bottom
@@ -104,12 +106,13 @@ const ConnectFourGrid = ({ columns, rows, winningContiguousCounters }: ConnectFo
     }
 
     return (
-        <>
+        <Container maxWidth='xl' sx={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+            {counterWon && <Typography>{counterWon} has won!</Typography>}
+
             <Grid container columns={columns} sx={{ width: '75%', boxSizing: 'border-box' }}>
                 {grid.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => <ConnectFourGridItem key={`${rowIndex}${columnIndex}`} gridItem={columnGridItem} size={1} column={columnIndex} addCounter={addCounter} currentPlayer={currentPlayer} />))}
             </Grid>
-            {counterWon && <Typography>{counterWon} has won!</Typography>}
-        </>
+        </Container>
     )
 }
 
