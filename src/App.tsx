@@ -20,7 +20,7 @@ const App = () => {
 
   return (
     <div className="App" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-      {!findingGame && <PreLobby username={username} setUsername={setUsername} onStartClick={onStartClick} /> }
+      {!findingGame && <PreLobby username={username} setUsername={setUsername} onStartClick={onStartClick} />}
       {findingGame && username && <Lobby username={username} cancelFindingGame={cancelFindingGame} />}
     </div>
   );
