@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './App.css';
 import ConnectFourGrid from './components/game/ConnectFourGrid';
 import Lobby from './components/Lobby';
 import PreLobby from './components/PreLobby';
@@ -22,7 +21,7 @@ const App = () => {
   }
 
   return (
-    <div className="App" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
       {!findingGame && !foundGame && <PreLobby username={username} setUsername={setUsername} onStartClick={onStartClick} />}
       {findingGame && username && <Lobby username={username} cancelFindingGame={cancelFindingGame} />}
       {foundGame && <ConnectFourGrid columns={7} rows={6} winningContiguousCounters={4} />}
