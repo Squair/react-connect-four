@@ -51,11 +51,9 @@ const beginGame = () => {
         firstPlayerToMove: randomPlayer
     }
 
-    players.map(player => {
-        player.socket.join(gameId);
-        io.to(gameId).emit("found game", game);
-    });
-
+    players.map(player => player.socket.join(gameId));
+    io.to(gameId).emit("found game", game);
+    
     //Remove players from queue
     matchQueue = matchQueue.filter(x => !players.map(p => p.socket.id).includes(x.socket.id));
 }
