@@ -12,11 +12,13 @@ interface IServerPlayer {
 interface IClientPlayer {
     username: string;
     id: string;
+    counter: Counter;
 }
 
 interface IGame {
     id: string;
     players: IClientPlayer[];
+    firstPlayerToMove: IClientPlayer;
 }
 
 interface IMove {
@@ -32,9 +34,21 @@ const beginGame = () => {
     const players = matchQueue.slice(-2);
     const gameId = uuidv4();
 
+    const clientPlayers: IClientPlayer[] = players.map(p => ({
+        id: p.socket.id, 
+        username: p.username, 
+        counter: '⚪'
+    }));
+
+    clientPlayers[0].counter = '🔴';
+    clientPlayers[1].counter = '🟡';
+
+    const randomPlayer = clientPlayers[Math.floor(Math.random() * clientPlayers.length)];
+
     const game: IGame = {
         id: gameId,
-        players: players.map(p => ({id: p.socket.id, username: p.username}))
+        players: clientPlayers,
+        firstPlayerToMove: randomPlayer
     }
 
     players.map(player => {
