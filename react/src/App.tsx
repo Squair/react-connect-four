@@ -16,7 +16,11 @@ const App = () => {
     if (!username) return;
 
     setFindingGame(true);
-    const socket = io("http://localhost:3001", { query: { username } });
+    const socketHost = process.env.REACT_APP_SOCKET_HOST;
+    
+    if (!socketHost) return;
+    const socket = io(socketHost, { query: { username } });
+
     setSocket(socket);
   };
 
