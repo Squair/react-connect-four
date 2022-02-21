@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@types/uuid": "^8.3.4",
+    "dotenv": "^16.0.0",
     "nodemon": "^2.0.15",
     "socket.io": "^4.4.1",
     "ts-node": "^10.5.0",
@@ -12,6 +13,7 @@
     "uuid": "^8.3.2"
   },
   "scripts": {
-    "start": "nodemon index.ts"
+    "devStart": "nodemon index.ts",
+    "start": "ts-node index.ts"
   }
 }

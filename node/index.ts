@@ -1,8 +1,14 @@
 import { Server, Socket } from "socket.io";
 import { v4 as uuidv4 } from 'uuid';
 import { Counter } from "./src/type/Counter";
+import { config } from 'dotenv';
 
-const io = new Server(3001, { cors: { origin: 'http://localhost:3000' } });
+// Load variables from .env into process
+config();
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS;
+
+const io = new Server(3001, { cors: { origin: allowedOrigins } });
 
 interface IServerPlayer {
     username: string;
