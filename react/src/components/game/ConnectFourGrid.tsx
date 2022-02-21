@@ -36,6 +36,11 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
         socket.on("recieve move", (move: IMove) => {
             const counterAdded = addCounterToColumn(move.counter, move.column);
             setGameBoard(counterAdded.newGameboard);
+            
+            if (counterAdded.rowAdded && isWinningMove(counterAdded.newGameboard, currentPlayer.counter, counterAdded.rowAdded, move.column)) {
+                return setWinningPlayer(getPlayerFromCounter(currentPlayer.counter));
+            }
+            
             switchToPlayer(move.opposingPlayerId);
         });
     // eslint-disable-next-line react-hooks/exhaustive-deps
