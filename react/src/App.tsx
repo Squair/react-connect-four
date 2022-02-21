@@ -29,6 +29,11 @@ const App = () => {
 
   const stopFindingGame = () => setFindingGame(false);
 
+  const endGame = () => {
+    stopFindingGame();
+    socket?.disconnect()
+  }
+
   useEffect(() => {
     if (!socket) return;
 
@@ -49,7 +54,7 @@ const App = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
       {!findingGame && !foundGame && <PreLobby username={username} setUsername={setUsername} onStartClick={onStartClick} />}
-      {findingGame && username && <Lobby username={username} cancelFindingGame={stopFindingGame} />}
+      {findingGame && username && <Lobby username={username} cancelFindingGame={endGame} />}
 
       {foundGame && socket && <ConnectFour socket={socket} game={foundGame} columns={7} rows={6} contiguousCountersToWin={4} />}
     </div>
