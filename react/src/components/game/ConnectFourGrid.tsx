@@ -38,6 +38,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
             setGameBoard(counterAdded.newGameboard);
             switchToPlayer(move.opposingPlayerId);
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket]);
 
     const switchToPlayer = (playerId: string) => setCurrentPlayer(game.players.filter(x => x.id === playerId)[0]);
