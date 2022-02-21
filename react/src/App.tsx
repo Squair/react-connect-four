@@ -18,7 +18,10 @@ const App = () => {
     setFindingGame(true);
     const socketHost = process.env.REACT_APP_SOCKET_HOST;
     
-    if (!socketHost) return;
+    if (!socketHost) { 
+      console.error("No configuration provided for socket.io host.");
+      return;
+    }
     const socket = io(socketHost, { query: { username } });
 
     setSocket(socket);
