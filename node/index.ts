@@ -7,8 +7,9 @@ import { config } from 'dotenv';
 config();
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS;
+const port = process.env.PORT;
 
-const io = new Server(3001, { cors: { origin: allowedOrigins } });
+const io = new Server(parseInt(port), { cors: { origin: allowedOrigins } });
 
 interface IServerPlayer {
     username: string;
