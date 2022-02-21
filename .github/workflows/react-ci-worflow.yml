@@ -33,6 +33,7 @@ jobs:
       run: yarn run build
 
     - name: Deploy
+      working-directory: './react'
       run: |
         git config --global user.name $user_name
         git config --global user.email $user_email
