@@ -36,7 +36,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
         socket.on("recieve move", (move: IMove) => {
             const counterAdded = addCounterToColumn(move.counter, move.column);
             setGameBoard(counterAdded.newGameboard);
-            
+
             if (counterAdded.rowAdded && isWinningMove(counterAdded.newGameboard, currentPlayer.counter, counterAdded.rowAdded, move.column)) {
                 return setWinningPlayer(getPlayerFromCounter(currentPlayer.counter));
             }
@@ -93,51 +93,60 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
     const isColumnFull = (gameboard: Counter[][], column: number) => gameboard[0][column] !== '⚪';
 
     const isWinningMove = (gameboardToCheck: Counter[][], counter: Counter, rowLastPlayed: number, columnLastPlayed: number): boolean => {
-        const rowMinBound = Math.max(0, rowLastPlayed - contiguousCountersToWin);
-        const rowMaxBound = Math.min(rows - 1, rowLastPlayed + contiguousCountersToWin);
-
-        const colMinBound = Math.max(0, columnLastPlayed - contiguousCountersToWin);
-        const colMaxBound = Math.min(columns - 1, columnLastPlayed + contiguousCountersToWin);
-
         let contiguousCounters = 0;
         let colCounter;
 
         // Check horizonal lines
-        for (let column = colMinBound; column <= colMaxBound; column++) {
+        for (let column = 0; column <= columns - 1; column++) {
             contiguousCounters = gameboardToCheck[rowLastPlayed][column] === counter ? contiguousCounters + 1 : 0;
             if (contiguousCounters === contiguousCountersToWin) return true;
         }
 
         // Check vertical lines
         contiguousCounters = 0;
-        for (let row = rowMinBound; row <= rowMaxBound; row++) {
+        for (let row = rows - 1; row >= 0; row--) {
             contiguousCounters = gameboardToCheck[row][columnLastPlayed] === counter ? contiguousCounters + 1 : 0;
             if (contiguousCounters === contiguousCountersToWin) return true;
         }
 
+        const rowMinBound = getRowMinimumBoundry(rowLastPlayed, columnLastPlayed);
+        const rowMaxBound = getRowMaxBoundry(rowLastPlayed, rows, contiguousCounters);
+    
+        const colMinBound = getColMinimumBoundry(rowLastPlayed, columnLastPlayed);
+        const colMaxBound = getColMaxBoundry(rowLastPlayed, columns, contiguousCounters);
+
         // Check line like: \
         contiguousCounters = 0;
         colCounter = colMinBound;
-        for (let row = Math.max(0, rowLastPlayed - columnLastPlayed); row <= rowMaxBound; row++) {
+
+        for (let row = rowMinBound; row <= rowMaxBound; row++) {
+            
             contiguousCounters = gameboardToCheck[row][colCounter] === counter ? contiguousCounters + 1 : 0;
             if (contiguousCounters === contiguousCountersToWin) return true;
 
+            if (colCounter === colMaxBound) break;
             colCounter++;
         }
 
         // Checking a line like: /
         contiguousCounters = 0;
-        colCounter = colMinBound;
-        for (let row = rowMaxBound; row >= rowMinBound; row--) {
+        colCounter = colMaxBound;
+        for (let row = rowMinBound; row <= rowMaxBound; row++) {
             contiguousCounters = gameboardToCheck[row][colCounter] === counter ? contiguousCounters + 1 : 0;
-
             if (contiguousCounters === contiguousCountersToWin) return true;
 
-            colCounter++;
+            if (colCounter === colMinBound) break;
+            colCounter--;
         }
 
         return false;
     }
+
+    const getRowMinimumBoundry = (row: number, col: number) => Math.max(0, row - col);
+    const getColMinimumBoundry = (row: number, col: number) => Math.max(0, col - row);
+
+    const getColMaxBoundry = (col: number, totalCols: number, contiguousCounters: number) => Math.min(totalCols - 1, Math.max(totalCols - 1, col + contiguousCounters));
+    const getRowMaxBoundry = (row: number, totalRows: number, contiguousCounters: number) => Math.min(totalRows - 1, Math.max(totalRows - 1, row + contiguousCounters));
 
     const getConnectForGridItems = () => {
         return gameboard.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => (
