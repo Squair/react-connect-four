@@ -37,8 +37,8 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
             const counterAdded = addCounterToColumn(move.counter, move.column);
             setGameBoard(counterAdded.newGameboard);
 
-            if (counterAdded.rowAdded && isWinningMove(counterAdded.newGameboard, currentPlayer.counter, counterAdded.rowAdded, move.column)) {
-                return setWinningPlayer(getPlayerFromCounter(currentPlayer.counter));
+            if (counterAdded.rowAdded && isWinningMove(counterAdded.newGameboard, move.counter, counterAdded.rowAdded, move.column)) {
+                return setWinningPlayer(getPlayerFromCounter(move.counter));
             }
 
             switchToPlayer(move.opposingPlayerId);
@@ -109,41 +109,68 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
             if (contiguousCounters === contiguousCountersToWin) return true;
         }
 
-        const rowMinBound = getLowerRowMinimumBoundry(rowLastPlayed, contiguousCountersToWin);
-        const rowMaxBound = getUpperRowMaxBoundry(rowLastPlayed, rows, contiguousCountersToWin);
-
-        const colMinBound = getLowerColMinimumBoundry(columnLastPlayed, contiguousCountersToWin);
-        const colMaxBound = getUpperColMaxBoundry(columnLastPlayed, columns, contiguousCountersToWin);
+        // Check descending lines (works)
+        const { descMinRow, descMaxRow } = getDescendingRowMinMax(rowLastPlayed, columnLastPlayed, rows, columns);
+        const { descMinCol, descMaxCol } = getDescendingColMinMax(rowLastPlayed, columnLastPlayed, rows, columns);
 
         contiguousCounters = 0;
-        colCounter = colMinBound;
-        for (let row = rowMaxBound; row >= rowMinBound; row--) {
+        colCounter = descMinCol;
+
+        for (let row = descMinRow; row <= descMaxRow; row++) {
             contiguousCounters = gameboardToCheck[row][colCounter] === counter ? contiguousCounters + 1 : 0;
-            
+
             if (contiguousCounters === contiguousCountersToWin) return true;
-            
-            if (colCounter === colMaxBound) break;
+
+            if (colCounter === descMaxCol) break;
             colCounter++;
         }
 
+        //Check ascending lines
+        const { ascMinRow, ascMaxRow } = getAccendingRowMinMax(rowLastPlayed, columnLastPlayed, rows, columns);
+        const { ascMinCol, ascMaxCol } = getAccendingColMinMax(rowLastPlayed, columnLastPlayed, rows, columns);
+
         contiguousCounters = 0;
-        colCounter = colMaxBound;
-        for (let row = rowMaxBound; row >= rowMinBound; row--) {
+        colCounter = ascMinCol;
+
+        for (let row = ascMaxRow; row >= ascMinRow; row--) {
             contiguousCounters = gameboardToCheck[row][colCounter] === counter ? contiguousCounters + 1 : 0;
-            if (contiguousCounters === contiguousCountersToWin) return true;
             
-            if (colCounter === colMinBound) break;
-            colCounter--;
+            if (contiguousCounters === contiguousCountersToWin) return true;
+
+            if (colCounter === ascMaxCol) break;
+            colCounter++;
         }
 
         return false;
     }
 
-    const getLowerColMinimumBoundry = (col: number, contiguousCountersToWin: number) => Math.max(0, col - contiguousCountersToWin);
-    const getLowerRowMinimumBoundry = (row: number, contiguousCountersToWin: number) => Math.max(0, row - contiguousCountersToWin);
+    const getAccendingRowMinMax = (row: number, col: number, totalRows: number, totalCols: number) => {
+        const ascMaxRow = Math.min(totalRows - 1, row + col);
+        const ascMinRow = Math.max(0, row - ((totalCols - 1) - col));
 
-    const getUpperColMaxBoundry = (col: number, totalCols: number, contiguousCountersToWin: number) => Math.min(totalCols - 1, Math.max(totalCols - 1, col + contiguousCountersToWin));
-    const getUpperRowMaxBoundry = (row: number, totalRows: number, contiguousCountersToWin: number) => Math.min(totalRows - 1, Math.max(totalRows - 1, row + contiguousCountersToWin));
+        return { ascMinRow, ascMaxRow }
+    }
+
+    const getDescendingRowMinMax = (row: number, col: number, totalRows: number, totalCols: number) => {
+        const descMinRow = Math.max(0, row - col);
+        const descMaxRow = Math.min(totalRows - 1, row + col);
+
+        return { descMinRow, descMaxRow }
+    }
+
+    const getDescendingColMinMax = (row: number, col: number, totalRows: number, totalCols: number) => {
+        const descMinCol = Math.max(0, col - row);
+        const descMaxCol = Math.min(totalCols - 1, ((totalRows - 1) - row) + col);
+
+        return { descMinCol, descMaxCol }
+    }
+
+    const getAccendingColMinMax = (row: number, col: number, totalRows: number, totalCols: number) => {
+        const ascMinCol = Math.max(0, ((totalRows - 1) - row) - col)
+        const ascMaxCol = Math.min(totalCols - 1, ((totalCols - 1) - row) + col);
+
+        return { ascMinCol, ascMaxCol }
+    }
 
     const getConnectForGridItems = () => {
         return gameboard.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => (
