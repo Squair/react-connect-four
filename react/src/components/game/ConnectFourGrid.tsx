@@ -11,7 +11,7 @@ import ConnectFourGridItem from "./ConnectFourGridItem";
 interface ConnectFourGridProps {
     socket: Socket;
     game: IGame;
-    finishGame: () => void; 
+    finishGame: () => void;
     columns: number;
     rows: number;
     contiguousCountersToWin: number;
@@ -30,6 +30,7 @@ const ConnectFourGrid = ({ socket, game, finishGame, columns, rows, contiguousCo
 
     const [gameboard, setGameBoard] = useState<Counter[][]>(initializeEmptyGameBoard(columns, rows));
     const [winningPlayer, setWinningPlayer] = useState<IPlayer>();
+    const [draw, setDraw] = useState<boolean>(false);
 
     const [currentPlayer, setCurrentPlayer] = useState<IPlayer>(game.firstPlayerToMove);
 
@@ -40,6 +41,10 @@ const ConnectFourGrid = ({ socket, game, finishGame, columns, rows, contiguousCo
 
             if (counterAdded.rowAdded && isWinningMove(counterAdded.newGameboard, move.counter, counterAdded.rowAdded, move.column)) {
                 return setWinningPlayer(getPlayerFromCounter(move.counter));
+            }
+
+            if (areNoMoreMoves(counterAdded.newGameboard)) {
+                return setDraw(true);
             }
 
             switchToPlayer(move.opposingPlayerId);
@@ -72,6 +77,10 @@ const ConnectFourGrid = ({ socket, game, finishGame, columns, rows, contiguousCo
             return setWinningPlayer(getPlayerFromCounter(counter));
         }
 
+        if (areNoMoreMoves(counterAdded.newGameboard)) {
+            return setDraw(true);
+        }
+
         switchToPlayer(opposingPlayerId);
     }
 
@@ -92,6 +101,15 @@ const ConnectFourGrid = ({ socket, game, finishGame, columns, rows, contiguousCo
         }
 
         return { rowAdded, newGameboard };
+    }
+
+    const areNoMoreMoves = (gameboard: Counter[][]) => {
+        for (let c = 0; c < columns; c++) {
+            if (!isColumnFull(gameboard, c)) {
+                return false
+            }
+        }
+        return true;
     }
 
     // Get if top row for column is not empty.
@@ -137,12 +155,8 @@ const ConnectFourGrid = ({ socket, game, finishGame, columns, rows, contiguousCo
         contiguousCounters = 0;
         colCounter = ascMinCol;
 
-        
-
         for (let row = ascMaxRow; row >= ascMinRow; row--) {
             contiguousCounters = gameboardToCheck[row][colCounter] === counter ? contiguousCounters + 1 : 0;
-            
-
             if (contiguousCounters === contiguousCountersToWin) return true;
 
             if (colCounter === ascMaxCol) break;
@@ -194,8 +208,14 @@ const ConnectFourGrid = ({ socket, game, finishGame, columns, rows, contiguousCo
     }
 
     const getGameInformationText = () => {
-        const message = winningPlayer ? `${winningPlayer.username}(${winningPlayer.counter}) has won!`
-            : `${currentPlayer.username}'s (${currentPlayer.counter}) turn!`;
+        let message;
+        if (winningPlayer) {
+            message = `${winningPlayer.username}(${winningPlayer.counter}) has won!`;
+        } else if (draw) {
+            message = `Draw!`;
+        } else {
+            message = `${currentPlayer.username}'s (${currentPlayer.counter}) turn!`;
+        }
 
         return <Typography variant='h5'>{message}</Typography>
     }
@@ -211,7 +231,7 @@ const ConnectFourGrid = ({ socket, game, finishGame, columns, rows, contiguousCo
             </div>
 
             {getGameInformationText()}
-            { winningPlayer && <Button variant='contained' onClick={finishGame}>Return to Lobby</Button>}
+            {(winningPlayer || draw) && <Button variant='contained' onClick={finishGame}>Return to Lobby</Button>}
         </Box>
     )
 }
