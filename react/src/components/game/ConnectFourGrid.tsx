@@ -109,7 +109,6 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
             if (contiguousCounters === contiguousCountersToWin) return true;
         }
 
-
         // Check descending lines (works)
         const { descMinRow, descMaxRow } = getDescendingRowMinMax(rowLastPlayed, columnLastPlayed, rows, columns);
         const { descMinCol, descMaxCol } = getDescendingColMinMax(rowLastPlayed, columnLastPlayed, rows, columns);
@@ -133,13 +132,11 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
         contiguousCounters = 0;
         colCounter = ascMinCol;
 
-        console.log('loop:');
         
 
         for (let row = ascMaxRow; row >= ascMinRow; row--) {
             contiguousCounters = gameboardToCheck[row][colCounter] === counter ? contiguousCounters + 1 : 0;
             
-            console.log(`row: ${row} col: ${colCounter} contigousCounters: ${contiguousCounters}`);
 
             if (contiguousCounters === contiguousCountersToWin) return true;
 
@@ -150,16 +147,11 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
         return false;
     }
 
-    const getAccendingRowMinMax = (row: number, col: number, totalRows: number, totalCols: number) => {
-        const ascMaxRow = Math.min(totalRows - 1, row + col);
-        const ascMinRow = Math.max(0, row - ((totalCols - 1) - col));
 
-        return { ascMinRow, ascMaxRow }
-    }
 
     const getDescendingRowMinMax = (row: number, col: number, totalRows: number, totalCols: number) => {
         const descMinRow = Math.max(0, row - col);
-        const descMaxRow = Math.min(totalRows - 1, row + col);
+        const descMaxRow = Math.min(totalRows - 1, (totalCols - col) + row);
 
         return { descMinRow, descMaxRow }
     }
@@ -169,6 +161,13 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
         const descMaxCol = Math.min(totalCols - 1, ((totalRows - 1) - row) + col);
 
         return { descMinCol, descMaxCol }
+    }
+
+    const getAccendingRowMinMax = (row: number, col: number, totalRows: number, totalCols: number) => {
+        const ascMaxRow = Math.min(totalRows - 1, row + col);
+        const ascMinRow = Math.max(0, row - ((totalCols - 1) - col));
+
+        return { ascMinRow, ascMaxRow }
     }
 
     const getAccendingColMinMax = (row: number, col: number, totalRows: number, totalCols: number) => {
