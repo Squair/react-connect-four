@@ -109,6 +109,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
             if (contiguousCounters === contiguousCountersToWin) return true;
         }
 
+
         // Check descending lines (works)
         const { descMinRow, descMaxRow } = getDescendingRowMinMax(rowLastPlayed, columnLastPlayed, rows, columns);
         const { descMinCol, descMaxCol } = getDescendingColMinMax(rowLastPlayed, columnLastPlayed, rows, columns);
@@ -132,9 +133,14 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
         contiguousCounters = 0;
         colCounter = ascMinCol;
 
+        console.log('loop:');
+        
+
         for (let row = ascMaxRow; row >= ascMinRow; row--) {
             contiguousCounters = gameboardToCheck[row][colCounter] === counter ? contiguousCounters + 1 : 0;
             
+            console.log(`row: ${row} col: ${colCounter} contigousCounters: ${contiguousCounters}`);
+
             if (contiguousCounters === contiguousCountersToWin) return true;
 
             if (colCounter === ascMaxCol) break;
@@ -166,7 +172,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
     }
 
     const getAccendingColMinMax = (row: number, col: number, totalRows: number, totalCols: number) => {
-        const ascMinCol = Math.max(0, ((totalRows - 1) - row) - col)
+        const ascMinCol = Math.max(0, col - ((totalRows - 1) - row))
         const ascMaxCol = Math.min(totalCols - 1, ((totalCols - 1) - row) + col);
 
         return { ascMinCol, ascMaxCol }
