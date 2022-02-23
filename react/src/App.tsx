@@ -31,7 +31,8 @@ const App = () => {
 
   const endGame = () => {
     stopFindingGame();
-    socket?.disconnect()
+    setFoundGame(undefined);
+    socket?.disconnect();
   }
 
   useEffect(() => {
@@ -56,7 +57,7 @@ const App = () => {
       {!findingGame && !foundGame && <PreLobby username={username} setUsername={setUsername} onStartClick={onStartClick} />}
       {findingGame && username && <Lobby username={username} cancelFindingGame={endGame} />}
 
-      {foundGame && socket && <ConnectFour socket={socket} game={foundGame} columns={7} rows={6} contiguousCountersToWin={4} />}
+      {foundGame && socket && <ConnectFour socket={socket} game={foundGame} finishGame={endGame} columns={7} rows={6} contiguousCountersToWin={4} />}
     </div>
   );
 }

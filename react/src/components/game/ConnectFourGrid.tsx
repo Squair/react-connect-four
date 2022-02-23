@@ -1,4 +1,4 @@
-import { Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
@@ -11,12 +11,13 @@ import ConnectFourGridItem from "./ConnectFourGridItem";
 interface ConnectFourGridProps {
     socket: Socket;
     game: IGame;
+    finishGame: () => void; 
     columns: number;
     rows: number;
     contiguousCountersToWin: number;
 }
 
-const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin }: ConnectFourGridProps) => {
+const ConnectFourGrid = ({ socket, game, finishGame, columns, rows, contiguousCountersToWin }: ConnectFourGridProps) => {
     const initializeEmptyGameBoard = (cols: number, rows: number) => {
         const emptyGrid: Counter[][] = [];
 
@@ -43,8 +44,12 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
 
             switchToPlayer(move.opposingPlayerId);
         });
+
+        // Disconnect players after game finished
+        if (winningPlayer) socket.disconnect();
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [socket]);
+    }, [socket, winningPlayer]);
 
     const switchToPlayer = (playerId: string) => setCurrentPlayer(game.players.filter(x => x.id === playerId)[0]);
     const getPlayerFromCounter = (counter: Counter) => game.players.filter(x => x.counter === counter)[0];
@@ -192,7 +197,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
         const message = winningPlayer ? `${winningPlayer.username}(${winningPlayer.counter}) has won!`
             : `${currentPlayer.username}'s (${currentPlayer.counter}) turn!`;
 
-        return <Typography variant='overline'>{message}</Typography>
+        return <Typography variant='h5'>{message}</Typography>
     }
 
     return (
@@ -206,6 +211,7 @@ const ConnectFourGrid = ({ socket, game, columns, rows, contiguousCountersToWin 
             </div>
 
             {getGameInformationText()}
+            { winningPlayer && <Button variant='contained' onClick={finishGame}>Return to Lobby</Button>}
         </Box>
     )
 }
