@@ -17,8 +17,8 @@ const App = () => {
 
     setFindingGame(true);
     const socketHost = process.env.REACT_APP_SOCKET_HOST;
-    
-    if (!socketHost) { 
+
+    if (!socketHost) {
       console.error("No configuration provided for socket.io host.");
       return;
     }
@@ -45,7 +45,7 @@ const App = () => {
 
     socket.on("found game", beginGame);
 
-    return () => { 
+    return () => {
       socket?.disconnect();
     }
   }, [socket])

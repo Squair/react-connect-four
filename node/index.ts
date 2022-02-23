@@ -74,6 +74,7 @@ io.on("connection", (socket) => {
     }
 
     socket.on("send move", (move: IMove) => io.to(move.opposingPlayerId).emit("recieve move", move));
-});
 
-io.on("disconnect", (socket) => matchQueue = matchQueue.filter(x => x !== socket.id));
+    // Remove player from queue on disconnect
+    socket.on("disconnect", () => matchQueue = matchQueue.filter(x => x.socket.id !== socket.id));
+});
