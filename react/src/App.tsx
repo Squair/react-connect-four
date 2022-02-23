@@ -44,6 +44,10 @@ const App = () => {
     }
 
     socket.on("found game", beginGame);
+
+    return () => { 
+      socket?.disconnect();
+    }
   }, [socket])
 
 
