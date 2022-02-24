@@ -16,7 +16,7 @@ const App = () => {
     if (!username) return;
 
     setFindingGame(true);
-    const socketHost = process.env.REACT_APP_SOCKET_HOST;
+    const socketHost = import.meta.env.VITE_SOCKET_HOST;
 
     if (!socketHost) {
       console.error("No configuration provided for socket.io host.");

@@ -1,4 +1,4 @@
-# Build process
+# Deployment process
 
 heroku git:remote {HEROKU REPO HERE}
 
