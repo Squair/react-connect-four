@@ -11,7 +11,7 @@ module.exports = {
         "src/**/*.{js,jsx,ts,tsx}",
         "!src/**/*.d.ts"
     ],
-    testMatch: [
+    "testMatch": [
         '**/__tests__/**/*.+(ts|tsx|js)',
         '**/?(*.)+(spec|test).+(ts|tsx|js)'
     ],
