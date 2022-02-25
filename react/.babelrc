@@ -18,6 +18,13 @@
                 "runtime": "automatic"
             }
         ],
+        [
+            "babel-preset-vite",
+            {
+                "env": true, // defaults to true
+                "glob": false // defaults to true
+            }
+        ],
         "@babel/preset-typescript"
     ]
 }
