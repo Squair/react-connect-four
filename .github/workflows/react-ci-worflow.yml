@@ -32,10 +32,6 @@ jobs:
       working-directory: './react'
       run: yarn run test-coverage
 
-    - name: Build
-      working-directory: './react'
-      run: yarn run build
-
     - name: Deploy
       working-directory: './react'
       run: |
