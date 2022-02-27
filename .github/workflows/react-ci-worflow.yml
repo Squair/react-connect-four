@@ -32,6 +32,9 @@ jobs:
       working-directory: './react'
       run: yarn run test-coverage
 
+    - name: Upload test coverage to Codecov
+      uses: codecov/codecov-action@v2
+
     - name: Deploy
       working-directory: './react'
       run: |
