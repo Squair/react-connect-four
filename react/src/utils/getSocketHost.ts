@@ -1,0 +1,1 @@
+export const getSocketHost = () => import.meta.env.VITE_SOCKET_HOST;

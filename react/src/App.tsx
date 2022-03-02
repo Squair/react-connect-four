@@ -4,6 +4,8 @@ import ConnectFour from './components/game/ConnectFour';
 import Lobby from './components/Lobby';
 import PreLobby from './components/PreLobby';
 import { IGame } from './interface/IGame';
+import { createSocket } from './utils/createSocket';
+import { getSocketHost } from './utils/getSocketHost';
 
 const App = () => {
   const [username, setUsername] = useState<string>();
@@ -16,14 +18,14 @@ const App = () => {
     if (!username) return;
 
     setFindingGame(true);
-    const socketHost = import.meta.env.VITE_SOCKET_HOST;
+    const socketHost = getSocketHost();
 
     if (!socketHost) {
       console.error("No configuration provided for socket.io host.");
       return;
     }
-    const socket = io(socketHost, { query: { username } });
-
+    
+    const socket = createSocket(socketHost, username);
     setSocket(socket);
   };
 
@@ -50,15 +52,9 @@ const App = () => {
     }
   }, [socket])
 
-
-  const onStartClick = () => {
-    if (!username) return;
-    beginFindingGame();
-  }
-
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-      {!findingGame && !foundGame && <PreLobby username={username} setUsername={setUsername} onStartClick={onStartClick} />}
+      {!findingGame && !foundGame && <PreLobby username={username} setUsername={setUsername} onStartClick={beginFindingGame} />}
       {findingGame && username && <Lobby username={username} cancelFindingGame={endGame} />}
 
       {foundGame && socket && <ConnectFour socket={socket} game={foundGame} finishGame={endGame} columns={7} rows={6} contiguousCountersToWin={4} />}
