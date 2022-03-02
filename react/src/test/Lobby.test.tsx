@@ -2,8 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import Lobby from "../components/Lobby";
 
 describe("<Lobby />", () => {
-    const cancelFindingGame = jest.fn();
-    const lobbyProps = { username: "test", cancelFindingGame}
+    const cancelFindingGameMock = jest.fn();
+    const lobbyProps = { username: "test", cancelFindingGame: cancelFindingGameMock}
 
     it('should show the username, information, circular progress indicator and a cancel button', () => {
         render(<Lobby {...lobbyProps} />);
@@ -28,6 +28,6 @@ describe("<Lobby />", () => {
         const cancelButton = screen.getByRole('button', { name: 'Cancel'});
         fireEvent.click(cancelButton);
         
-        expect(cancelFindingGame).toHaveBeenCalled();
+        expect(cancelFindingGameMock).toHaveBeenCalled();
     });
 });
