@@ -10,7 +10,7 @@ const Lobby = ({ username, cancelFindingGame }: ILobbyProps) => {
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography variant='h2'>{username}</Typography>
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '17.5em' }}>
-                <Typography variant='h5'>Searching for a game </Typography>
+                <Typography variant='h5'>Searching for a game</Typography>
                 <CircularProgress />
             </Box>
             <Button variant='contained' onClick={cancelFindingGame}>Cancel</Button>
