@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { IGame } from "../interface/IGame";
-import { GameState } from "../type/GameState";
+import { PreGameState } from "../type/PreGameState";
 import { createSocket } from "../utils/createSocket";
 import { getSocketHost } from "../utils/getSocketHost";
 
 const useGameSetupUtilities = (username: string | undefined) => {
   const [socket, setSocket] = useState<Socket>();
-  const [gameState, setGameState] = useState<GameState>('PreLobby');
+  const [gameState, setGameState] = useState<PreGameState>('PreLobby');
   const [foundGame, setFoundGame] = useState<IGame>();
 
   // Listen for socket.io to broadcast a game was found
