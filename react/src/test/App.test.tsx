@@ -14,7 +14,7 @@ describe("<App />", () => {
         render(<App />);
     });
 
-    it('should begin finding a game when a username is entered and the user clicks start', () => {
+    it('should begin finding a game and open a socket when a username is entered and the user clicks start', () => {
         // Mock env vars for socket io host
         const viteSocketHostMock = 'Test Host';
         const getSocketHostMock = jest.fn().mockReturnValue(viteSocketHostMock);
@@ -41,6 +41,29 @@ describe("<App />", () => {
         expect(getSocketHostMock).toHaveBeenCalled();
         expect(createSocketMock).toHaveBeenCalledWith(viteSocketHostMock, username);
         expect(informationText).toHaveTextContent(text);
+    });
+
+    it('should not begin finding a game or open an socket when a username is empty and the user clicks start', () => {
+        const getSocketHostMock = jest.fn();
+        jest.spyOn(getSocketHost, 'getSocketHost').mockImplementation(getSocketHostMock);
+
+        const createSocketMock = jest.fn().mockReturnValue(new MockedSocket());
+        jest.spyOn(createSocket, 'createSocket').mockImplementation(createSocketMock);
+        
+        //Act
+        render(<App />);
+
+        const findGameButton = screen.getByRole('button', { name: /Find Game/ });
+
+        fireEvent.click(findGameButton);
+
+        const text = 'Searching for a game';
+        const informationText = screen.queryByText(text);
+
+        // Assert
+        expect(getSocketHostMock).not.toHaveBeenCalled();
+        expect(createSocketMock).not.toHaveBeenCalled();
+        expect(informationText).not.toBeInTheDocument();
     });
 
     it('should throw if no environment configuration is found for the socket host', () => {
