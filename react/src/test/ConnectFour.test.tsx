@@ -7,17 +7,18 @@ import { IGame } from '../interface/IGame';
 import { IPlayer } from '../interface/IPlayer';
 import { Counter } from '../type/Counter';
 import * as initializeGameboard from '../utils/initializeGameboard';
+import * as connectFourUtilities from '../hooks/connectFourUtilities';
 
 jest.mock('socket.io-client');
 
 describe("<ConnectFour />", () => {
     let socket: Socket = new MockedSocket();
-    const finishGame = jest.fn();
+    const finishGameMock = jest.fn();
 
-    const players: IPlayer[] = [
-        { id: '1', counter: '🔴', username: 'Red player' },
-        { id: '2', counter: '🟡', username: 'Yellow player' },
-    ]
+    const redPlayer: IPlayer = { id: '1', counter: '🔴', username: 'Red player' };
+    const yellowPlayer: IPlayer = { id: '2', counter: '🟡', username: 'Yellow player' }
+
+    const players: IPlayer[] = [redPlayer, yellowPlayer];
 
     const game: IGame = {
         id: "1",
@@ -34,12 +35,12 @@ describe("<ConnectFour />", () => {
     });
 
     it('should display a message indicating the first user to play', () => {
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGame} game={game} />)
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
         expect(screen.getByText(`${game.firstPlayerToMove.username}'s (${game.firstPlayerToMove.counter}) turn!`)).toBeInTheDocument();
     });
 
     it('should render an empty grid containing a number of items equal to columns multiplied by rows', async () => {
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGame} game={game} />)
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
         const emptyGameBoardPieces = await screen.findAllByText('⚪');
         expect(emptyGameBoardPieces.length).toBe(rows * columns)
     });
@@ -48,7 +49,7 @@ describe("<ConnectFour />", () => {
         // Ensure socket id matches the player id going first
         socket.id = game.firstPlayerToMove.id;
 
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGame} game={game} />)
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
 
         const bottomLeftGridItem = screen.getByLabelText(`${rows - 1}:0`);
         expect(bottomLeftGridItem).toBeTruthy();
@@ -62,7 +63,7 @@ describe("<ConnectFour />", () => {
         // Ensure socket id doesn't match the player id going first
         socket.id = players.find(p => p.id !== game.firstPlayerToMove.id)!.id;
 
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGame} game={game} />)
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
 
         const bottomLeftGridItem = screen.getByLabelText(`${rows - 1}:0`);
         expect(bottomLeftGridItem).toBeTruthy();
@@ -84,12 +85,12 @@ describe("<ConnectFour />", () => {
             ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
             ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '🟡'],
             ['⚪', '🔴', '🔴', '🔴', '⚪', '🟡', '🟡'],
-            /* ^ Winning move*/ 
+            /* ^ Winning move*/
         ]
 
         jest.spyOn(initializeGameboard, 'initializeGameBoard').mockReturnValue(gameboardOneMoveBeforeHorizontalWin);
 
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGame} game={game} />)
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
 
         const winningPosition = screen.getByLabelText(`${rows - 1}:0`);
         expect(winningPosition).toBeTruthy();
@@ -108,7 +109,7 @@ describe("<ConnectFour />", () => {
         const gameboardOneMoveBeforeVerticalWin: Counter[][] = [
             ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
             ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
- /*Win ->*/ ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+  /*Win ->*/['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
             ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
             ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '🟡'],
             ['🔴', '⚪', '⚪', '⚪', '⚪', '🟡', '🟡'],
@@ -116,7 +117,7 @@ describe("<ConnectFour />", () => {
 
         jest.spyOn(initializeGameboard, 'initializeGameBoard').mockReturnValue(gameboardOneMoveBeforeVerticalWin);
 
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGame} game={game} />)
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
 
         const winningPosition = screen.getByLabelText(`${rows - 1}:0`);
         expect(winningPosition).toBeTruthy();
@@ -135,7 +136,7 @@ describe("<ConnectFour />", () => {
         const gameboardOneMoveBeforeAscendingDiagonalWin: Counter[][] = [
             ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
             ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
- /*Win ->*/ ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+  /*Win ->*/['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
             ['⚪', '⚪', '🔴', '🟡', '⚪', '⚪', '⚪'],
             ['⚪', '🔴', '🟡', '🟡', '⚪', '⚪', '⚪'],
             ['🔴', '🟡', '🟡', '🟡', '⚪', '⚪', '⚪'],
@@ -143,7 +144,7 @@ describe("<ConnectFour />", () => {
 
         jest.spyOn(initializeGameboard, 'initializeGameBoard').mockReturnValue(gameboardOneMoveBeforeAscendingDiagonalWin);
 
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGame} game={game} />)
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
 
         const winningPosition = screen.getByLabelText('2:3');
         expect(winningPosition).toBeTruthy();
@@ -162,7 +163,7 @@ describe("<ConnectFour />", () => {
         const gameboardOneMoveBeforeDescendingDiagonalWin: Counter[][] = [
             ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
             ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
- /*Win ->*/ ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+  /*Win ->*/['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
             ['🟡', '🔴', '⚪', '⚪', '⚪', '⚪', '⚪'],
             ['🟡', '🟡', '🔴', '⚪', '⚪', '⚪', '⚪'],
             ['🟡', '🟡', '🟡', '🔴', '⚪', '⚪', '⚪'],
@@ -170,7 +171,7 @@ describe("<ConnectFour />", () => {
 
         jest.spyOn(initializeGameboard, 'initializeGameBoard').mockReturnValue(gameboardOneMoveBeforeDescendingDiagonalWin);
 
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGame} game={game} />)
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
 
         const winningPosition = screen.getByLabelText('2:0');
         expect(winningPosition).toBeTruthy();
@@ -187,7 +188,7 @@ describe("<ConnectFour />", () => {
         socket.id = game.firstPlayerToMove.id;
 
         const gameboardOneMoveBeforeDescendingDiagonalWin: Counter[][] = [
-/*Draw ->*/ ['⚪', '🔴', '🟡', '🔴', '🟡', '🔴', '🟡'],
+ /*Draw ->*/['⚪', '🔴', '🟡', '🔴', '🟡', '🔴', '🟡'],
             ['🔴', '🔴', '🟡', '🔴', '🔴', '🔴', '🟡'],
             ['🟡', '🟡', '🔴', '🔴', '🟡', '🟡', '🔴'],
             ['🔴', '🔴', '🟡', '🟡', '🟡', '🔴', '🟡'],
@@ -197,7 +198,7 @@ describe("<ConnectFour />", () => {
 
         jest.spyOn(initializeGameboard, 'initializeGameBoard').mockReturnValue(gameboardOneMoveBeforeDescendingDiagonalWin);
 
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGame} game={game} />)
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
 
         const drawingPosition = screen.getByLabelText('0:0');
         expect(drawingPosition).toBeTruthy();
@@ -206,5 +207,71 @@ describe("<ConnectFour />", () => {
 
         expect(drawingPosition).toHaveTextContent('🔴');
         expect(screen.getByText('Draw!')).toBeInTheDocument();
+    });
+
+    it('should show a return to lobby button when a player has won, calls finishGame when clicked', async () => {
+        socket.id = game.firstPlayerToMove.id;
+
+        const redPlayerWinGameboard: Counter[][] = [
+            ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '🟡'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '🟡', '🟡'],
+        ]
+
+        const useConnectFourUtilsMockRedPlayerWon = {
+            makeMove: jest.fn(),
+            gameboard: redPlayerWinGameboard,
+            currentPlayer: redPlayer,
+            winningPlayer: redPlayer,
+            draw: false,
+            GameInformationText: jest.fn().mockImplementation(() => <div></div>)
+        }
+
+        jest.spyOn(connectFourUtilities, 'default').mockReturnValue(useConnectFourUtilsMockRedPlayerWon);
+
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
+
+        const returnToLobbyButton = screen.getByRole('button', { name: /return to lobby/i });
+        expect(returnToLobbyButton).toBeInTheDocument();
+
+        fireEvent.click(returnToLobbyButton);
+
+        expect(finishGameMock).toHaveBeenCalled();
+    });
+
+    it('should show a return to lobby button when the game draws, calls finishGame when clicked', async () => {
+        socket.id = game.firstPlayerToMove.id;
+
+        const redPlayerWinGameboard: Counter[][] = [
+            ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '🟡'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '🟡', '🟡'],
+        ]
+
+        const useConnectFourUtilsMockDraw = {
+            makeMove: jest.fn(),
+            gameboard: redPlayerWinGameboard,
+            currentPlayer: redPlayer,
+            winningPlayer: undefined,
+            draw: true, // <-- Set draw to true
+            GameInformationText: jest.fn().mockImplementation(() => <div></div>)
+        }
+
+        jest.spyOn(connectFourUtilities, 'default').mockReturnValue(useConnectFourUtilsMockDraw);
+
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
+
+        const returnToLobbyButton = screen.getByRole('button', { name: /return to lobby/i });
+        expect(returnToLobbyButton).toBeInTheDocument();
+
+        fireEvent.click(returnToLobbyButton);
+
+        expect(finishGameMock).toHaveBeenCalled();
     });
 });
