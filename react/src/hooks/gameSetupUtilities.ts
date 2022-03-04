@@ -7,7 +7,7 @@ import { getSocketHost } from "../utils/getSocketHost";
 
 const useGameSetupUtilities = (username: string | undefined) => {
   const [socket, setSocket] = useState<Socket>();
-  const [gameState, setGameState] = useState<PreGameState>('PreLobby');
+  const [gameState, setGameState] = useState<PreGameState>('Idle');
   const [foundGame, setFoundGame] = useState<IGame>();
 
   // Listen for socket.io to broadcast a game was found
@@ -37,7 +37,7 @@ const useGameSetupUtilities = (username: string | undefined) => {
   };
 
   const endGame = () => {
-    setGameState('PreLobby');
+    setGameState('Idle');
     setFoundGame(undefined);
     socket?.disconnect();
   }

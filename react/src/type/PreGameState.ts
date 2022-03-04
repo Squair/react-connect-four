@@ -1,1 +1,1 @@
-export type PreGameState = 'PreLobby' | 'Finding game' | 'Found game'
+export type PreGameState = 'Idle' | 'Finding game' | 'Found game'

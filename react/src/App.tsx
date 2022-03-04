@@ -10,7 +10,7 @@ const App = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-      {gameState === 'PreLobby' && <PreLobby username={username} setUsername={setUsername} onStartClick={beginFindingGame} />}
+      {gameState === 'Idle' && <PreLobby username={username} setUsername={setUsername} onStartClick={beginFindingGame} />}
       {gameState === 'Finding game' && username && <Lobby username={username} cancelFindingGame={endGame} />}
       {gameState === 'Found game' && foundGame && socket && <ConnectFour socket={socket} game={foundGame} finishGame={endGame} columns={7} rows={6} contiguousCountersToWin={4} />}
     </div>
