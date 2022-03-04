@@ -21,14 +21,10 @@ const useConnectFourUtilities = (socket: Socket, game: IGame, columns: number, r
             const counterAdded = addCounterToColumn(move.counter, move.column);
             setGameBoard(counterAdded.newGameboard);
 
-            if (counterAdded.rowAdded && isWinningMove(counterAdded.newGameboard, move.counter, counterAdded.rowAdded, move.column)) {
-                return setWinningPlayer(getPlayerFromCounter(move.counter));
+            if (isGameInFinalState(move.column, counterAdded.rowAdded, move.counter, counterAdded.newGameboard)){
+                return;
             }
-
-            if (areNoMoreMoves(counterAdded.newGameboard)) {
-                return setDraw(true);
-            }
-
+    
             switchToPlayer(move.opposingPlayerId);
         });
 
@@ -55,15 +51,25 @@ const useConnectFourUtilities = (socket: Socket, game: IGame, columns: number, r
         const move: IMove = { opposingPlayerId: opposingPlayerId, counter, column };
         socket.emit("send move", move);
 
-        if (counterAdded.rowAdded && isWinningMove(counterAdded.newGameboard, counter, counterAdded.rowAdded, column)) {
-            return setWinningPlayer(getPlayerFromCounter(counter));
-        }
-
-        if (areNoMoreMoves(counterAdded.newGameboard)) {
-            return setDraw(true);
+        if (isGameInFinalState(column, counterAdded.rowAdded, counter, counterAdded.newGameboard)){
+            return;
         }
 
         switchToPlayer(opposingPlayerId);
+    }
+
+    const isGameInFinalState = (columnLastPlayed: number, rowLastPlayed: number | undefined, counterLastPlayer: Counter, gameboard: Counter[][]): boolean => {
+        if (rowLastPlayed && isWinningMove(gameboard, counterLastPlayer, rowLastPlayed, columnLastPlayed)) {
+            setWinningPlayer(getPlayerFromCounter(counterLastPlayer));
+            return true;
+        }
+
+        if (areNoMoreMoves(gameboard)) {
+            setDraw(true);
+            return true;
+        }
+
+        return false;
     }
 
     const addCounterToColumn = (counter: Counter, column: number): { rowAdded?: number, newGameboard: Counter[][] } => {
