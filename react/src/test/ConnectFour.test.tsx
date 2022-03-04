@@ -8,6 +8,7 @@ import { IPlayer } from '../interface/IPlayer';
 import { Counter } from '../type/Counter';
 import * as initializeGameboard from '../utils/initializeGameboard';
 import * as connectFourUtilities from '../hooks/connectFourUtilities';
+import { boardsizes, defaultGameboardSize } from '../utils/gameboardSizes';
 
 jest.mock('socket.io-client');
 
@@ -23,7 +24,8 @@ describe("<ConnectFour />", () => {
     const game: IGame = {
         id: "1",
         players: players,
-        firstPlayerToMove: players[0] // First play to go is 🔴
+        firstPlayerToMove: players[0], // First play to go is 🔴
+        boardSizeId: defaultGameboardSize.id
     }
 
     const columns = 7;
@@ -40,9 +42,15 @@ describe("<ConnectFour />", () => {
     });
 
     it('should render an empty grid containing a number of items equal to columns multiplied by rows', async () => {
-        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
-        const emptyGameBoardPieces = await screen.findAllByText('⚪');
-        expect(emptyGameBoardPieces.length).toBe(rows * columns)
+        boardsizes.map(bs => {
+            const { unmount } = render(<ConnectFour socket={socket} columns={bs.columns} rows={bs.rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
+            
+            const emptyGameBoardPieces = screen.getAllByText('⚪');
+            expect(emptyGameBoardPieces.length).toBe(bs.rows * bs.columns)
+            
+            //unmount each time so next iterations render doesn't also include the previous
+            unmount();
+        })
     });
 
     it('clicking the first column should place a 🔴 when first player to go is 🔴', async () => {
