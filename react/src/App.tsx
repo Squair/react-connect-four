@@ -10,7 +10,7 @@ const App = () => {
   const [username, setUsername] = useState<string>();
   const [gameboardSize, setGameboardSize] = useState<IGameboardSize>(defaultGameboardSize);
 
-  const { beginFindingGame, endGame, foundGame, gameState, socket } = useGameSetupUtilities(username);
+  const { beginFindingGame, endGame, foundGame, gameState, socket } = useGameSetupUtilities(username, gameboardSize.id);
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>

@@ -5,7 +5,7 @@ import { PreGameState } from "../type/PreGameState";
 import { createSocket } from "../utils/createSocket";
 import { getSocketHost } from "../utils/getSocketHost";
 
-const useGameSetupUtilities = (username: string | undefined) => {
+const useGameSetupUtilities = (username: string | undefined, boardSizeId: string) => {
   const [socket, setSocket] = useState<Socket>();
   const [gameState, setGameState] = useState<PreGameState>('Idle');
   const [foundGame, setFoundGame] = useState<IGame>();
@@ -33,7 +33,7 @@ const useGameSetupUtilities = (username: string | undefined) => {
     }
 
     setGameState('Finding game');
-    setSocket(createSocket(socketHost, username));
+    setSocket(createSocket(socketHost, username, boardSizeId));
   };
 
   const endGame = () => {

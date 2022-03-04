@@ -1,5 +1,5 @@
 export interface IGameboardSize {
-    id: number;
+    id: string;
     rows: number;
     columns: number;
 }

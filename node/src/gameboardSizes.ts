@@ -1,4 +1,4 @@
-import { IGameboardSize } from "../interface/IGameboardSize";
+import { IGameboardSize } from "..";
 
 export const defaultGameboardSize: IGameboardSize = { id: '0', rows: 6, columns: 7 };
 
