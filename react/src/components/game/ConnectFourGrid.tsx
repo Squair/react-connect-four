@@ -10,17 +10,16 @@ interface ConnectFourGridProps {
 
 const ConnectFourGrid = ({ gameboard, makeMove }: ConnectFourGridProps) => {
 
-    const getConnectForGridItems = () => {
-        return gameboard.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => (
-            <ConnectFourGridItem key={`${rowIndex}${columnIndex}`}
-                gridItem={columnGridItem}
-                size={1}
-                row={rowIndex}
-                column={columnIndex}
-                makeMove={makeMove}
-            />
-        )));
-    }
+    const getConnectForGridItems = () => gameboard.map((rowGridItem, rowIndex) => rowGridItem.map((columnGridItem, columnIndex) => (
+        <ConnectFourGridItem key={`${rowIndex}${columnIndex}`}
+            gridItem={columnGridItem}
+            size={1}
+            row={rowIndex}
+            column={columnIndex}
+            makeMove={makeMove}
+        />
+    )));
+
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
