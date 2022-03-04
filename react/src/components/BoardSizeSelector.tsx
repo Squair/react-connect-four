@@ -24,7 +24,7 @@ const BoardSizeSelector: FunctionComponent<BoardSizeSelectorProps> = ({ gameboar
         >
             {boardsizes.sort(ascendingRowNumber).map(boardSize => (
                 <ToggleButton key={boardSize.id}
-                    sx={{ textAlign: 'center' }}
+                    sx={{ textAlign: 'center', padding: '0.4em' }}
                     value={boardSize.id}
                 >
                     {boardSize.rows} x {boardSize.columns}

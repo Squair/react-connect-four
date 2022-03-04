@@ -1,4 +1,5 @@
 import { TextField } from "@mui/material";
+import { textAlign } from "@mui/system";
 
 interface IUsernameInput {
     username: string | undefined;
@@ -7,7 +8,7 @@ interface IUsernameInput {
 
 const UsernameInput = ({ username, setUsername }: IUsernameInput) => {
     const onUsernameChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => setUsername(e.target.value);
-    return <TextField value={username ?? ''} onChange={onUsernameChange} placeholder='Enter username...' />
+    return <TextField inputProps={{ sx: { textAlign: 'center '} }} value={username ?? ''} onChange={onUsernameChange} placeholder='Enter username...' />
 }
 
 export default UsernameInput;
