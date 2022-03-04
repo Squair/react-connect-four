@@ -4,6 +4,7 @@ import * as socketio from 'socket.io-client';
 import MockedSocket from 'socket.io-mock';
 import * as getSocketHost from '../utils/getSocketHost'
 import * as createSocket from '../utils/createSocket'
+import { defaultGameboardSize } from "../utils/gameboardSizes";
 
 
 describe("<App />", () => {
@@ -39,7 +40,7 @@ describe("<App />", () => {
 
         // Assert
         expect(getSocketHostMock).toHaveBeenCalled();
-        expect(createSocketMock).toHaveBeenCalledWith(viteSocketHostMock, username);
+        expect(createSocketMock).toHaveBeenCalledWith(viteSocketHostMock, username, defaultGameboardSize.id);
         expect(informationText).toHaveTextContent(text);
     });
 

@@ -4,10 +4,12 @@ import useGameSetupUtilities from "../hooks/gameSetupUtilities";
 import { IGame } from "../interface/IGame";
 import { IPlayer } from "../interface/IPlayer";
 import * as createSocket from '../utils/createSocket';
+import { defaultGameboardSize } from "../utils/gameboardSizes";
 import * as getSocketHost from '../utils/getSocketHost';
 
 describe("useGameSetupUtilities hook", () => {
     const username = "Test username";
+
     const viteSocketHostMock = 'Test Host';
     let getSocketHostMock;
     
@@ -15,6 +17,9 @@ describe("useGameSetupUtilities hook", () => {
     let socketMock: any;
     let socketClientMock: any; 
     let createSocketMock;
+
+    const mockPlayer: IPlayer = { id: '1', counter: '🔴', username: 'Test' }
+    const mockGame: IGame = { id: '1', firstPlayerToMove: mockPlayer, players: [], boardSizeId: defaultGameboardSize.id }
 
     beforeEach(() => {
         socketMock = new SocketMock();
@@ -27,7 +32,7 @@ describe("useGameSetupUtilities hook", () => {
     })
 
     it("should create a socket and set the game state to 'Finding game' when beginFindingGame is called.", async () => {
-        const { result } = renderHook(() => useGameSetupUtilities(username));
+        const { result } = renderHook(() => useGameSetupUtilities(username, defaultGameboardSize.id));
 
         act(() => result.current.beginFindingGame());
 
@@ -36,13 +41,10 @@ describe("useGameSetupUtilities hook", () => {
     });
 
     it("should set the game state to 'Found game' when the socket server emits a message.", async () => {
-        const { result } = renderHook(() => useGameSetupUtilities(username));
+        const { result } = renderHook(() => useGameSetupUtilities(username, defaultGameboardSize.id));
 
         // Arrange
         act(() => result.current.beginFindingGame());
-
-        const mockPlayer: IPlayer = { id: '1', counter: '🔴', username: 'Test' }
-        const mockGame: IGame = { id: '1', firstPlayerToMove: mockPlayer, players: [] }
 
         // Act here to ensure found game is set
         act(() => socketMock.emit('found game', mockGame));
@@ -51,13 +53,10 @@ describe("useGameSetupUtilities hook", () => {
     });
 
     it("should disconnect the socket, set foundGame to undefined and set the game state to 'Idle' when endGame is called.", async () => {
-        const { result } = renderHook(() => useGameSetupUtilities(username));
+        const { result } = renderHook(() => useGameSetupUtilities(username, defaultGameboardSize.id));
 
         // Arrange
         act(() => result.current.beginFindingGame());
-
-        const mockPlayer: IPlayer = { id: '1', counter: '🔴', username: 'Test' }
-        const mockGame: IGame = { id: '1', firstPlayerToMove: mockPlayer, players: [] }
 
         // Act here to ensure found game is set
         act(() => socketMock.emit('found game', mockGame));
