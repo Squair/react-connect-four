@@ -38,6 +38,7 @@ const useGameSetupUtilities = (username: string | undefined) => {
 
   const endGame = () => {
     setGameState('PreLobby');
+    setFoundGame(undefined);
     socket?.disconnect();
   }
 
