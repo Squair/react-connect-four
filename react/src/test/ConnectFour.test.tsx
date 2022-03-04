@@ -129,6 +129,33 @@ describe("<ConnectFour />", () => {
         expect(screen.getByText(`${game.firstPlayerToMove.username}(${game.firstPlayerToMove.counter}) has won!`)).toBeInTheDocument();
     });
 
+    it('should show win when 🔴 gets correct number of contiguousCountersToWin in a vertical line (boundary check)', async () => {
+        // Ensure socket id matches the player id going first
+        socket.id = game.firstPlayerToMove.id;
+
+        const gameboardOneMoveBeforeVerticalWin: Counter[][] = [
+  /*Win ->*/['⚪', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🔴', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🟡', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+            ['🟡', '⚪', '⚪', '⚪', '⚪', '⚪', '⚪'],
+        ]
+
+        jest.spyOn(initializeGameboard, 'initializeGameBoard').mockReturnValue(gameboardOneMoveBeforeVerticalWin);
+
+        render(<ConnectFour socket={socket} columns={columns} rows={rows} contiguousCountersToWin={contiguousCountersToWin} finishGame={finishGameMock} game={game} />)
+
+        const winningPosition = screen.getByLabelText(`0:0`);
+        expect(winningPosition).toBeTruthy();
+
+        fireEvent.click(winningPosition);
+
+        expect(winningPosition).toHaveTextContent('🔴');
+        expect((await screen.findAllByText('🔴')).length).toBe(contiguousCountersToWin);
+        expect(screen.getByText(`${game.firstPlayerToMove.username}(${game.firstPlayerToMove.counter}) has won!`)).toBeInTheDocument();
+    });
+
     it('should show win when 🔴 gets correct number of contiguousCountersToWin in a ascending diagonal line', async () => {
         // Ensure socket id matches the player id going first
         socket.id = game.firstPlayerToMove.id;
