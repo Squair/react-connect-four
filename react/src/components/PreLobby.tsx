@@ -15,7 +15,7 @@ interface IPreLobbyProps {
 const PreLobby = ({ gameboardSize, setGameboardSize, username, setUsername, onStartClick }: IPreLobbyProps) => {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: 'fit-content' }}>
-            <Typography textAlign='left' variant='h2'>Connect Four 🔴🟡</Typography>
+            <Typography textAlign='center' variant='h4'>🔴 Connect Four 🟡</Typography>
 
             <UsernameInput username={username} setUsername={setUsername} />
 
