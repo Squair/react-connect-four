@@ -30,8 +30,7 @@ jobs:
     - name: Install dependencies
       working-directory: './react'
       run: |
-        yarn policies set-version
-        yarn install --frozen-lockfile
+        yarn install
 
     - name: Test
       working-directory: './react'
