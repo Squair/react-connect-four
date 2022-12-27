@@ -24,6 +24,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
+    - name: Yarn set version
+      working-directory: './react'
+      run: |
+        yarn set version stable
+
     - name: Install dependencies
       working-directory: './react'
       run: |
