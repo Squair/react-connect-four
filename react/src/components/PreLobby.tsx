@@ -1,5 +1,4 @@
-import { Button, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, Button, Typography } from "@mui/material";
 import { IGameboardSize } from "../interface/IGameboardSize";
 import BoardSizeSelector from "./BoardSizeSelector";
 import UsernameInput from "./UsernameInput";
