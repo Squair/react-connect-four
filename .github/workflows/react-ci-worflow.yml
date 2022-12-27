@@ -24,12 +24,10 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Upgrade yarn
-      run: npm install yarn -g
-
     - name: Install dependencies
       working-directory: './react'
       run: |
+        corepack enable
         yarn install
 
     - name: Test
