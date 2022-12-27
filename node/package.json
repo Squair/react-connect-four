@@ -19,5 +19,8 @@
     "devStart": "nodemon index.ts",
     "start": "node build/index.js",
     "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.17"
   }
 }
