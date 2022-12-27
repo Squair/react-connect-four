@@ -1,9 +1,9 @@
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, Grid, GridSize, Typography } from "@mui/material";
 import { Counter } from "../../type/Counter";
 
 interface IConnectFourGridItemProps {
     gridItem: Counter;
-    size: number;
+    size: GridSize;
     column: number;
     row: number;
     makeMove: (column: number) => void;

@@ -1,5 +1,4 @@
-import { Grid, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, Grid, Typography } from "@mui/material";
 import { Counter } from "../../type/Counter";
 import ConnectFourGridItem from "./ConnectFourGridItem";
 

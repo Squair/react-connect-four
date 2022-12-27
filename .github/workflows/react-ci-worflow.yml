@@ -27,7 +27,6 @@ jobs:
     - name: Install dependencies
       working-directory: './react'
       run: |
-        corepack enable
         yarn install
 
     - name: Test
