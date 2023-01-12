@@ -40,9 +40,8 @@ export interface IGameboardSize {
     rows: number;
     columns: number;
 }
-  
 
-let matchQueues: { [key: string]: IServerPlayer[] } = {}
+const matchQueues: { [key: string]: IServerPlayer[] } = {}
 
 const beginGame = (boardSizeId: string) => {
     // Retrieve the players that joined the queue first (FIFO)
@@ -50,13 +49,15 @@ const beginGame = (boardSizeId: string) => {
     const gameId = uuidv4();
 
     const clientPlayers: IClientPlayer[] = players.map(p => ({
-        id: p.socket.id, 
-        username: p.username, 
+        id: p.socket.id,
+        username: p.username,
         counter: '⚪'
     }));
 
-    clientPlayers[0].counter = '🔴';
-    clientPlayers[1].counter = '🟡';
+    // Randomly assign players to a colour 
+    const randomNumber = Math.round(Math.random());
+    clientPlayers[0].counter = randomNumber ? '🔴' : '🟡';
+    clientPlayers[1].counter = clientPlayers[0].counter == '🔴' ? '🟡' : '🔴';
 
     const randomPlayer = clientPlayers[Math.floor(Math.random() * clientPlayers.length)];
 
@@ -69,24 +70,27 @@ const beginGame = (boardSizeId: string) => {
 
     players.map(player => player.socket.join(gameId));
     io.to(gameId).emit("found game", game);
-    
+
     //Remove players from queue
     matchQueues[boardSizeId] = matchQueues[boardSizeId].filter(x => !players.map(p => p.socket.id).includes(x.socket.id));
 }
 
+const registerEvents = (socket: Socket, boardSizeId: string) => {
+    // Remove player from queue on disconnect
+    socket.on("disconnect", () => matchQueues[boardSizeId] = matchQueues[boardSizeId].filter(x => x.socket.id !== socket.id));
+    socket.on("send move", (move: IMove) => socket.to(move.opposingPlayerId).emit("recieve move", move));
+}
+
 io.on("connection", (socket) => {
-    // Add new players to start of array
     const boardSizeId = socket.handshake.query.boardSizeId as string;
 
-    const existingPlayers = boardSizeId in matchQueues ? matchQueues[boardSizeId] : [];
-    matchQueues[boardSizeId] = [{ username: socket.handshake.query.username as string, socket }, ...existingPlayers];
+    const existingPlayers = matchQueues[boardSizeId] ?? [];
+    const newPlayer: IServerPlayer = { username: socket.handshake.query.username as string, socket };
+
+    matchQueues[boardSizeId] = [newPlayer, ...existingPlayers];
+    registerEvents(socket, boardSizeId);
 
     if (matchQueues[boardSizeId].length >= 2) {
         beginGame(boardSizeId);
     }
-
-    socket.on("send move", (move: IMove) => io.to(move.opposingPlayerId).emit("recieve move", move));
-
-    // Remove player from queue on disconnect
-    socket.on("disconnect", () => matchQueues[boardSizeId] = matchQueues[boardSizeId].filter(x => x.socket.id !== socket.id));
 });
